@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Backup and temporary files
+*.bak
+*.tmp
+*.tmp-*
+*.pending-*
+HANDOFF*.md
+receipt.json
+failure.txt
+
+# Save files & local scratch
+*.cache
+CacheData
+CacheFixVer
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Node
+node_modules/
+
+# Build outputs: keep dist HTML tracked, ignore large Windows binaries & vendor SDK
+dist/*.exe
+dist/*.pdb
+dist/*.zip
+release/
+work/
+vendor/
+private-evidence/

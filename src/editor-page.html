@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<script>try { document.querySelector('meta[name="color-scheme"]').content = localStorage.getItem("color-scheme") || "light dark"; } catch (_) {}</script>
+<title>귀곡팔황 (Tale of Immortal) 세이브 에디터 v1.0</title>
+<style>
+  @property --fade-start {
+    syntax: "<length>";
+    inherits: false;
+    initial-value: 0px;
+  }
+  @property --fade-end {
+    syntax: "<length>";
+    inherits: false;
+    initial-value: 0px;
+  }
+
+  :root {
+    color-scheme: light dark;
+    scrollbar-width: thin;
+    scrollbar-color: var(--scroll-thumb) var(--scroll-track);
+    accent-color: var(--accent);
+
+    --jade-light: #1f6f5c;
+    --jade-soft-light: #d9efe7;
+    --amber-light: #8a4f0d;
+    --amber-soft-light: #f6e4c8;
+    --amber-ink-light: #ffffff;
+    --amber-ink-dark: #1b1204;
+    --ink-light: #1c2220;
+    --muted-light: #5d6b66;
+    --surface-light: #f7faf8;
+    --surface-2-light: #eef4f0;
+    --border-light: #c6d6ce;
+    --danger-light: #a52a2a;
+
+    --jade-dark: #7fe3c3;
+    --jade-soft-dark: #12332b;
+    --amber-dark: #f2bd6b;
+    --amber-soft-dark: #3a2a11;
+    --ink-dark: #e6f0eb;
+    --muted-dark: #9db2a9;
+    --surface-dark: #111816;
+    --surface-2-dark: #182320;
+    --border-dark: #2f443c;
+    --danger-dark: #ff8f8f;
+
+    --jade: var(--jade-light);
+    --jade-soft: var(--jade-soft-light);
+    --amber: var(--amber-light);
+    --amber-soft: var(--amber-soft-light);
+    --amber-ink: var(--amber-ink-light);
+    --ink: var(--ink-light);
+    --muted: var(--muted-light);
+    --surface: var(--surface-light);
+    --surface-2: var(--surface-2-light);
+    --border: var(--border-light);
+    --danger: var(--danger-light);
+    --accent: var(--jade-light);
+    --accent-soft: var(--jade-soft-light);
+    --scroll-thumb: #6b8479;
+    --scroll-track: #e6efea;
+  }
+
+  :root:has(> head > meta[name="color-scheme"][content="dark"]) { color-scheme: dark; }
+  :root:has(> head > meta[name="color-scheme"][content="light"]) { color-scheme: light; }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not(:has(> head > meta[name="color-scheme"][content="light"])) {
+      --jade: var(--jade-dark);
+      --jade-soft: var(--jade-soft-dark);
+      --amber: var(--amber-dark);
+      --amber-soft: var(--amber-soft-dark);
+      --amber-ink: var(--amber-ink-dark);
+      --ink: var(--ink-dark);
+      --muted: var(--muted-dark);
+      --surface: var(--surface-dark);
+      --surface-2: var(--surface-2-dark);
+      --border: var(--border-dark);
+      --danger: var(--danger-dark);
+      --accent: var(--jade-dark);
+      --accent-soft: var(--jade-soft-dark);
+      --scroll-thumb: #7b968b;
+      --scroll-track: #141d1a;
+    }
+  }
+
+  :root:has(> head > meta[name="color-scheme"][content="dark"]) {
+    --jade: var(--jade-dark);
+    --jade-soft: var(--jade-soft-dark);
+    --amber: var(--amber-dark);
+    --amber-soft: var(--amber-soft-dark);
+    --amber-ink: var(--amber-ink-dark);
+    --ink: var(--ink-dark);
+    --muted: var(--muted-dark);
+    --surface: var(--surface-dark);
+    --surface-2: var(--surface-2-dark);
+    --border: var(--border-dark);
+    --danger: var(--danger-dark);
+    --accent: var(--jade-dark);
+    --accent-soft: var(--jade-soft-dark);
+    --scroll-thumb: #7b968b;
+    --scroll-track: #141d1a;
+  }
+
+  @supports (color: light-dark(white, black)) {
+    :root {
+      --jade: light-dark(var(--jade-light), var(--jade-dark));
+      --jade-soft: light-dark(var(--jade-soft-light), var(--jade-soft-dark));
+      --amber: light-dark(var(--amber-light), var(--amber-dark));
+      --amber-soft: light-dark(var(--amber-soft-light), var(--amber-soft-dark));
+      --amber-ink: light-dark(var(--amber-ink-light), var(--amber-ink-dark));
+      --ink: light-dark(var(--ink-light), var(--ink-dark));
+      --muted: light-dark(var(--muted-light), var(--muted-dark));
+      --surface: light-dark(var(--surface-light), var(--surface-dark));
+      --surface-2: light-dark(var(--surface-2-light), var(--surface-2-dark));
+      --border: light-dark(var(--border-light), var(--border-dark));
+      --danger: light-dark(var(--danger-light), var(--danger-dark));
+      --accent: light-dark(var(--jade-light), var(--jade-dark));
+      --accent-soft: light-dark(var(--jade-soft-light), var(--jade-soft-dark));
+      --scroll-thumb: light-dark(#6b8479, #7b968b);
+      --scroll-track: light-dark(#e6efea, #141d1a);
+    }
+  }
+
+  .theme-when-dark { display: none; }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not(:has(> head > meta[name="color-scheme"][content="light"])) .theme-when-light { display: none; }
+    :root:not(:has(> head > meta[name="color-scheme"][content="light"])) .theme-when-dark { display: inline; }
+  }
+
+  :root:has(> head > meta[name="color-scheme"][content="dark"]) .theme-when-light { display: none; }
+  :root:has(> head > meta[name="color-scheme"][content="dark"]) .theme-when-dark { display: inline; }
+  :root:has(> head > meta[name="color-scheme"][content="light"]) .theme-when-light { display: inline; }
+  :root:has(> head > meta[name="color-scheme"][content="light"]) .theme-when-dark { display: none; }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    font-family: "Malgun Gothic", "맑은 고딕", "Apple SD Gothic Neo", system-ui, sans-serif;
+    background: var(--surface-2);
+    color: var(--ink);
+    line-height: 1.45;
+    min-block-size: 100vh;
+  }
+
+  .app-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 16px;
+    padding: 14px 20px;
+    background: linear-gradient(135deg, var(--jade-soft), var(--amber-soft));
+    border-block-end: 1px solid var(--border);
+  }
+
+  .brand { display: flex; align-items: baseline; gap: 10px; margin-inline-end: auto; }
+  .brand h1 { margin: 0; font-size: 1.18rem; letter-spacing: -0.01em; }
+  .version { color: var(--amber); font-weight: 700; font-size: 0.86rem; }
+  .header-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--jade);
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+  .badge.dirty { color: var(--amber); border-color: var(--amber); background: var(--amber-soft); }
+
+  .btn {
+    font: inherit;
+    font-size: 0.85rem;
+    padding: 7px 13px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--ink);
+    cursor: pointer;
+    transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+  }
+  .btn:hover:not(:disabled) { border-color: var(--jade); color: var(--jade); }
+  .btn:disabled { opacity: 0.52; cursor: not-allowed; }
+  .btn:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+  .btn.primary { background: var(--jade); border-color: var(--jade); color: var(--surface); font-weight: 600; }
+  .btn.primary:hover:not(:disabled) { background: var(--amber); border-color: var(--amber); color: var(--amber-ink); }
+  .btn.danger { color: var(--danger); border-color: var(--danger); }
+  .btn.sm { padding: 4px 9px; font-size: 0.8rem; }
+
+  #status-banner {
+    padding: 8px 20px;
+    font-size: 0.86rem;
+    color: var(--muted);
+    background: var(--surface);
+    border-block-end: 1px solid var(--border);
+  }
+  #status-banner[data-tone="error"] { color: var(--danger); font-weight: 600; }
+  #status-banner[data-tone="ok"] { color: var(--jade); font-weight: 600; }
+
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 18px;
+    padding: 10px 20px;
+    background: var(--surface);
+    border-block-end: 1px solid var(--border);
+  }
+  .toolbar-group { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .toolbar-group[hidden] { display: none; }
+  .toolbar-group label { font-size: 0.84rem; color: var(--muted); }
+
+  input, select {
+    font: inherit;
+    font-size: 0.86rem;
+    padding: 6px 9px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--ink);
+  }
+  input[type="number"] { font-variant-numeric: tabular-nums; }
+  input:focus-visible, select:focus-visible { outline: 2px solid var(--amber); outline-offset: 1px; }
+
+  .summary-strip, .preset-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    padding: 10px 20px;
+    max-inline-size: 1400px;
+    margin-inline: auto;
+    font-size: 0.84rem;
+  }
+  .summary-strip:empty, .preset-bar:empty { display: none; }
+  .kpi {
+    padding: 5px 11px;
+    border-radius: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    font-variant-numeric: tabular-nums;
+  }
+  .kpi strong { color: var(--jade); margin-inline-start: 4px; }
+
+  main { padding: 8px 20px 32px; max-inline-size: 1400px; margin-inline: auto; }
+
+  .tabs-shell { display: flex; flex-direction: column; min-inline-size: 0; }
+
+  .tablist.scroller {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    border-block-end: 1px solid var(--border);
+    scrollbar-width: none;
+    scroll-snap-type: inline proximity;
+    scroll-padding-inline: 2.5rem;
+    --fade-size: 2.5rem;
+    --fade-dir: right;
+    --fade-start-pos: 0;
+    --fade-end-pos: 100%;
+    mask:
+      linear-gradient(black, black) no-clip subtract,
+      linear-gradient(to var(--fade-dir), black, transparent) var(--fade-start-pos) 0 / var(--fade-start) 100% no-repeat no-clip,
+      linear-gradient(to var(--fade-dir), transparent, black) var(--fade-end-pos) 0 / var(--fade-end) 100% no-repeat no-clip;
+    animation: reveal-fade-start linear both, hide-fade-end linear both;
+    animation-timeline: scroll(self inline);
+    animation-range: 0 var(--fade-size), calc(100% - var(--fade-size)) 100%;
+  }
+  .tablist.scroller::-webkit-scrollbar { display: none; }
+
+  @keyframes reveal-fade-start { to { --fade-start: var(--fade-size); } }
+  @keyframes hide-fade-end { from { --fade-end: var(--fade-size); } }
+
+  [role="tab"] {
+    position: relative;
+    flex: none;
+    scroll-snap-align: start;
+    font: inherit;
+    font-size: 0.88rem;
+    padding: 9px 14px;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    border-radius: 8px 8px 0 0;
+  }
+  [role="tab"]:hover { color: var(--ink); background: var(--surface-2); }
+  [role="tab"][aria-selected="true"] { color: var(--accent); }
+  [role="tab"][aria-selected="true"]::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0;
+    border-block-end: 3px solid var(--accent);
+  }
+  [role="tab"]:focus-visible { outline: 2px solid var(--amber); outline-offset: -2px; }
+
+  .panels-stack { display: block; min-inline-size: 0; }
+  .panels-stack > [role="tabpanel"] { min-inline-size: 0; }
+  [role="tabpanel"][hidden] { pointer-events: none; }
+
+  .panel-card {
+    margin-block-start: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    min-block-size: 120px;
+  }
+  .panel-card h2, .panel-card h3 { margin-block: 0 10px; color: var(--jade); font-size: 0.98rem; }
+
+  .section-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px 14px;
+    margin-block-end: 16px;
+  }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 0.8rem; color: var(--muted); font-weight: 600; }
+  .row-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-block: 8px 14px; }
+  .muted { color: var(--muted); font-size: 0.82rem; }
+  .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; }
+  .subcard { padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); }
+  .subcard h4 { margin: 0 0 6px; color: var(--jade); font-size: 0.92rem; }
+
+  .table-wrapper {
+    overflow: auto;
+    max-inline-size: 100%;
+    max-block-size: min(460px, 72vh);
+    container-type: inline-size;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-block-start: 10px;
+  }
+  .table-wrapper:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-variant-numeric: tabular-nums;
+    font-size: 0.84rem;
+  }
+  caption {
+    padding: 9px 12px;
+    text-align: start;
+    font-weight: 700;
+    color: var(--jade);
+    background: var(--surface-2);
+    border-block-end: 1px solid var(--border);
+  }
+  thead {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 1;
+  }
+  thead th {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 1;
+    background: var(--surface-2);
+    color: var(--muted);
+    text-align: start;
+    font-weight: 700;
+    padding: 8px 10px;
+    border-block-end: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  tbody th {
+    position: sticky;
+    inset-inline-start: 0;
+    background: var(--surface);
+    text-align: start;
+    font-weight: 600;
+    padding: 8px 10px;
+    border-block-end: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  tbody td {
+    padding: 8px 10px;
+    border-block-end: 1px solid var(--border);
+    color: var(--ink);
+  }
+  tbody tr:last-child th, tbody tr:last-child td { border-block-end: 0; }
+  tbody tr:hover td, tbody tr:hover th { background: var(--surface-2); }
+
+  @container (width < 600px) {
+    thead { display: none; }
+    table, tbody, tr, th, td { display: block; width: 100%; }
+    tbody tr {
+      padding: 8px 10px;
+      border-block-end: 1px solid var(--border);
+    }
+    tbody th {
+      position: sticky;
+      inset-block-start: 0;
+      inset-inline-start: auto;
+      z-index: 2;
+      padding: 4px 0;
+      border: 0;
+      color: var(--jade);
+      background: var(--surface);
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+    tbody td { padding: 3px 0; border: 0; }
+    tbody td::before {
+      display: inline-block;
+      min-inline-size: 6.5em;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    tbody td:nth-child(2)::before { content: var(--label-2, "") ": "; }
+    tbody td:nth-child(3)::before { content: var(--label-3, "") ": "; }
+    tbody td:nth-child(4)::before { content: var(--label-4, "") ": "; }
+    tbody td:nth-child(5)::before { content: var(--label-5, "") ": "; }
+    tbody td:nth-child(6)::before { content: var(--label-6, "") ": "; }
+  }
+
+  dialog {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    width: min(680px, 92vw);
+    padding: 0;
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: 0 18px 48px rgb(0 0 0 / 0.35);
+  }
+  dialog:modal { overscroll-behavior: contain; }
+  dialog::backdrop {
+    overflow: hidden;
+    overscroll-behavior: contain;
+    background: rgb(0 0 0 / 0.55);
+  }
+  .dialog-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 18px;
+    border-block-end: 1px solid var(--border);
+    background: var(--jade-soft);
+  }
+  .dialog-head h2 { margin: 0; font-size: 1rem; color: var(--jade); }
+  #changelog-body {
+    padding: 14px 18px;
+    max-block-size: min(56vh, 520px);
+    overflow: auto;
+    overscroll-behavior: contain;
+    font-size: 0.86rem;
+  }
+  dialog form {
+    display: flex;
+    justify-content: flex-end;
+    padding: 12px 18px;
+    border-block-start: 1px solid var(--border);
+  }
+
+  footer {
+    padding: 18px 20px 26px;
+    color: var(--muted);
+    font-size: 0.78rem;
+    text-align: center;
+    border-block-start: 1px solid var(--border);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+</head>
+<body>
+<header class="app-header">
+  <div class="brand">
+    <h1>귀곡팔황 세이브 에디터</h1>
+    <span class="version">v1.0</span>
+  </div>
+  <span id="transport-badge" class="badge">오프라인 브라우저</span>
+  <div class="header-actions">
+    <button type="button" id="btn-theme-toggle" class="btn"><span class="theme-when-light">다크 테마</span><span class="theme-when-dark">라이트 테마</span></button>
+    <button type="button" id="btn-load-demo" class="btn">체험용 슬롯 불러오기</button>
+    <button type="button" id="btn-open-changelog" class="btn">변경 내역 (0)</button>
+  </div>
+</header>
+
+<div id="status-banner" role="status" aria-live="polite">세이브 슬롯을 열거나 체험용 슬롯을 불러오세요. 게임을 종료한 상태에서 저장해야 안전합니다.</div>
+
+<nav class="toolbar" aria-label="세이브 파일 작업 도구 모음">
+  <div class="toolbar-group" data-mode="webview2" hidden>
+    <button type="button" id="btn-native-open-slot" class="btn">슬롯 폴더 열기</button>
+    <button type="button" id="btn-native-open-files" class="btn">개별 파일 열기</button>
+    <button type="button" id="btn-native-save" class="btn primary">자동 백업 저장</button>
+  </div>
+  <div class="toolbar-group" data-mode="server" hidden>
+    <label for="server-slot-select">슬롯</label>
+    <select id="server-slot-select"></select>
+    <button type="button" id="btn-server-load" class="btn">슬롯 불러오기</button>
+    <button type="button" id="btn-server-save" class="btn primary">서버 백업 저장</button>
+  </div>
+  <div class="toolbar-group" data-mode="browser" hidden>
+    <button type="button" id="btn-browser-dir" class="btn">슬롯 폴더 선택</button>
+    <button type="button" id="btn-browser-files" class="btn">파일 직접 선택</button>
+    <input id="file-input" type="file" multiple hidden>
+    <button type="button" id="btn-browser-export" class="btn primary">수정본 내보내기</button>
+  </div>
+</nav>
+
+<div id="summary-strip" class="summary-strip" aria-label="세이브 요약"></div>
+<div id="preset-bar" class="preset-bar" aria-label="원클릭 프리셋"></div>
+
+<main>
+  <div class="tabs-shell">
+    <div class="tablist scroller" id="editor-tablist" role="tablist" focusgroup="tablist nomemory" aria-label="세이브 편집 섹션">
+      <button type="button" role="tab" id="tab-overview" data-panel="panel-overview" aria-selected="true" focusgroupstart>개요·인물</button>
+      <button type="button" role="tab" id="tab-stats" data-panel="panel-stats" aria-selected="false">능력치·자질</button>
+      <button type="button" role="tab" id="tab-items" data-panel="panel-items" aria-selected="false">재화·소지품</button>
+      <button type="button" role="tab" id="tab-destiny" data-panel="panel-destiny" aria-selected="false">선천기운·운명</button>
+      <button type="button" role="tab" id="tab-martials" data-panel="panel-martials" aria-selected="false">비급·기령·도심</button>
+      <button type="button" role="tab" id="tab-sect" data-panel="panel-sect" aria-selected="false">종문·인연·업적</button>
+      <button type="button" role="tab" id="tab-codex" data-panel="panel-codex" aria-selected="false">전서·엔드빌드</button>
+    </div>
+    <div class="panels-stack">
+      <div role="tabpanel" id="panel-overview" aria-labelledby="tab-overview">
+        <div class="panel-card">
+          <div id="mount-overview"></div>
+          <h3>로드된 세이브 파일 및 동기화 상태</h3>
+          <div tabindex="0" role="region" aria-labelledby="loaded-files-caption" class="table-wrapper">
+            <table style="--label-2:'역할';--label-3:'크기';--label-4:'인코딩';--label-5:'상태';">
+              <caption id="loaded-files-caption">로드된 세이브 파일 및 변경 상태</caption>
+              <thead>
+                <tr>
+                  <th scope="col">파일명</th>
+                  <th scope="col">역할</th>
+                  <th scope="col">크기</th>
+                  <th scope="col">인코딩</th>
+                  <th scope="col">상태</th>
+                </tr>
+              </thead>
+              <tbody id="loaded-files-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div role="tabpanel" id="panel-stats" aria-labelledby="tab-stats" hidden="until-found"><div class="panel-card" id="mount-stats"></div></div>
+      <div role="tabpanel" id="panel-items" aria-labelledby="tab-items" hidden="until-found"><div class="panel-card" id="mount-items"></div></div>
+      <div role="tabpanel" id="panel-destiny" aria-labelledby="tab-destiny" hidden="until-found"><div class="panel-card" id="mount-destiny"></div></div>
+      <div role="tabpanel" id="panel-martials" aria-labelledby="tab-martials" hidden="until-found"><div class="panel-card" id="mount-martials"></div></div>
+      <div role="tabpanel" id="panel-sect" aria-labelledby="tab-sect" hidden="until-found"><div class="panel-card" id="mount-sect"></div></div>
+      <div role="tabpanel" id="panel-codex" aria-labelledby="tab-codex" hidden="until-found"><div class="panel-card" id="mount-codex"></div></div>
+    </div>
+  </div>
+</main>
+
+<dialog id="changelog-dialog" aria-labelledby="changelog-dialog-title">
+  <div class="dialog-head">
+    <h2 id="changelog-dialog-title">변경 내역 및 동기화 상태</h2>
+  </div>
+  <div id="changelog-body"></div>
+  <form method="dialog">
+    <button type="submit" value="close" class="btn" autofocus>닫기</button>
+  </form>
+</dialog>
+
+<footer>귀곡팔황 세이브 에디터 v1.0 · 로컬 전용 오프라인 도구 · 데스크톱(.exe)·로컬 서버(serve)·CLI 슬롯 편집(edit)으로 저장할 때 원본 세이브는 SHA-256 검증 후 .backup-*.bak 자동 백업을 남기며(단일 파일 변환 decrypt/encrypt는 새 파일 생성 전용), 독립 실행형 브라우저 모드에서는 수정된 파일을 브라우저 다운로드로 내보냅니다.</footer>
+
+<!-- BUNDLE_SCRIPTS_START -->
+<script src="catalog-data.js"></script>
+<script src="cache-codec.js"></script>
+<script src="editor-core.js"></script>
+<script src="editor-ui.js"></script>
+<!-- BUNDLE_SCRIPTS_END -->
+</body>
+</html>
